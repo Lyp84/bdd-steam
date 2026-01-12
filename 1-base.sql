@@ -16,6 +16,8 @@ create table usuarios (
 );
 
 --jogos
+
+create type status_jogo as enum ('ativo', 'inativo', 'em_breve', 'descontinuado'); 
 create table jogos (
     id_jogo serial primary key,
     titulo varchar(255) not null,
@@ -33,11 +35,10 @@ create table jogos (
     avaliacao_media decimal(3,2),
     total_avaliacoes integer default 0,
     data_cadastro timestamp default current_timestamp,
-    esta_ativo boolean default true
+    status status_jogo default 'ativo' 
 );
 
 -- RELAÇÃO USUARIO-JOGO
-
 
 --biblioteca
 create table biblioteca (
@@ -53,31 +54,32 @@ create table biblioteca (
 --lista_desejos
 create table lista_desejos (
     id_lista serial primary key,
-    id_usuario integer not null references usuarios(id_usuario) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
+    fk_usuario integer not null references usuarios(id_usuario) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
     data_adicao timestamp default current_timestamp,
-    unique(id_usuario, id_jogo)
+    unique(fk_usuario, fk_jogo)
 );
 
 --carrinho
 create table carrinho (
     id_item_carrinho serial primary key,
-    id_usuario integer not null references usuarios(id_usuario) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
+    fk_usuario integer not null references usuarios(id_usuario) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
     data_adicao timestamp default current_timestamp,
-    unique(id_usuario, id_jogo)
+    unique(fk_usuario, fk_jogo) 
 );
 
 -- SISTEMA DE COMPRAS
 
 --compras
+create type status_compra as enum ('pendente', 'aprovado', 'cancelado', 'reembolsado', 'processando');
 create table compras (
     id_compra serial primary key,
-    id_usuario integer not null references usuarios(id_usuario) on delete cascade,
+    fk_usuario integer not null references usuarios(id_usuario) on delete cascade,
     data_compra timestamp default current_timestamp,
     total decimal(10,2) not null,
     metodo_pagamento varchar(50),
-    status varchar(20) default 'pendente',
+    status status_compra default 'pendente',
     endereco_ip varchar(45),
     transacao_id varchar(100)
 );
@@ -124,13 +126,14 @@ create table avaliacoes (
 
 -- COMUNIDADE E AMIGOS
 
-
 --amizades
+
+create type status_amizade as enum ('pendente', 'aceito', 'bloqueado', 'recusado');
 create table amizades (
     id_usuario1 integer not null references usuarios(id_usuario) on delete cascade,
     id_usuario2 integer not null references usuarios(id_usuario) on delete cascade,
     data_amizade timestamp default current_timestamp,
-    status varchar(20) default 'pendente',
+    status status_amizade default 'pendente',
     check (id_usuario1 < id_usuario2),
     primary key (id_usuario1, id_usuario2)
 );
@@ -145,9 +148,7 @@ create table mensagens (
     lida boolean default false
 );
 
-
 -- CONTEÚDO ADICIONAL
-
 
 --dlcs
 create table dlcs (
