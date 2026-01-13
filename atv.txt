@@ -16,3 +16,15 @@ biblioteca (jogos que o usuario comprou)
 carrinho 
 compras
 
+reate or replace trigger atualizacao_preco
+after UPDATE on propriedades
+for each row 
+execute function registro_atualizacao_preco();
+
+create or replace function registro_atualizacao_preco()
+returns trigger as $$
+    begin
+    end if;
+        return NEW;
+    end;
+$$ language plpgsql;
