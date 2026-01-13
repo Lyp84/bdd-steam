@@ -159,11 +159,11 @@ execute function fc_validar_idade_jogo();
 
 
 --ATUALIZAÇÃO DE SALDO 
-create function fc_atualizar_saldo_carteira()
+create or replace function fc_atualizar_saldo_carteira()
 returns trigger as $$
     begin
     --compra aprovada
-    if (new.status = 'aprovado' and old.status != 'aprovado') then 
+    if (new.status = 'aprovado' and old.status != 'aprovado' and saldo_carteira >= total) then 
         update usuarios
         set saldo_carteira = saldo_carteira - new.total
         where id_usuario = new.fk_usuario;

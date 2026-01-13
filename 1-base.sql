@@ -11,7 +11,7 @@ create table usuarios (
     data_criacao timestamp default current_timestamp,
     avatar_url text,
     steam_level integer default 1 check (steam_level >= 1),
-    saldo_carteira decimal(10,2) default 0.00,
+    saldo_carteira decimal(10,2) default 0.00
 );
 
 --jogos
@@ -24,7 +24,7 @@ create table jogos (
     desenvolvedora varchar(100),
     publicadora varchar(100),
     data_lancamento date,
-    classificacao_etaria varchar(10),
+    classificacao_etaria varchar(3),
     requisitos_sistema text,
     video_url text,
     pagina_principal_url text,
@@ -42,12 +42,12 @@ create table jogos (
 --biblioteca
 create table biblioteca (
     id_biblioteca serial primary key,
-    id_usuario integer not null references usuarios(id_usuario) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
+    fk_usuario integer not null references usuarios(id_usuario) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
     data_aquisicao timestamp default current_timestamp,
     horas_jogadas decimal(10,2) default 0,
     ultimo_acesso timestamp,
-    unique(id_usuario, id_jogo)
+    unique(fk_usuario, fk_jogo)
 );
 
 --lista_desejos
@@ -86,12 +86,12 @@ create table compras (
 --itens_compra
 create table itens_compra (
     id_item_compra serial primary key,
-    id_compra integer not null references compras(id_compra) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo),
+    fk_compra integer not null references compras(fk_compra) on delete cascade,
+    fk_jogo integer not null references jogos(fk_jogo),
     preco_unitario decimal(10,2) not null,
     desconto_aplicado decimal(5,2) default 0,
     preco_pago decimal(10,2) generated always as (preco_unitario * (1 - desconto_aplicado/100)) stored,
-    unique(id_compra, id_jogo)
+    unique(fk_compra, fk_jogo)
 );
 
 -- CATEGORIAS E AVALIAÇÕES
@@ -105,22 +105,22 @@ create table categorias (
 
 --jogo_categorias
 create table jogo_categorias (
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
-    id_categoria integer not null references categorias(id_categoria) on delete cascade,
-    primary key (id_jogo, id_categoria)
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
+    fk_categoria integer not null references categorias(id_categoria) on delete cascade,
+    primary key (fk_jogo, fk_categoria)
 );
 
 --avaliacoes
 create table avaliacoes (
     id_avaliacao serial primary key,
-    id_usuario integer not null references usuarios(id_usuario) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
+    fk_usuario integer not null references usuarios(id_usuario) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
     nota integer not null check (nota >= 1 and nota <= 5),
     comentario text,
     data_avaliacao timestamp default current_timestamp,
     util_count integer default 0,
     nao_util_count integer default 0,
-    unique(id_usuario, id_jogo)
+    unique(fk_usuario, fk_jogo)
 );
 
 -- COMUNIDADE E AMIGOS
@@ -170,7 +170,7 @@ create table pacotes (
 
 --pacote_itens
 create table pacote_itens (
-    id_pacote integer not null references pacotes(id_pacote) on delete cascade,
-    id_jogo integer not null references jogos(id_jogo) on delete cascade,
-    primary key (id_pacote, id_jogo)
+    fk_pacote integer not null references pacotes(id_pacote) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
+    primary key (fk_pacote, fk_jogo)
 );
