@@ -166,4 +166,3 @@ VALUES (1, 'Pacote RPG Épico', 'Inclui 3 jogos de RPG com expansões exclusivas
 (4, 8), 
 (5, 9), 
 (5, 10);
-
