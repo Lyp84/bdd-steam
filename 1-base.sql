@@ -86,8 +86,8 @@ create table compras (
 --itens_compra
 create table itens_compra (
     id_item_compra serial primary key,
-    fk_compra integer not null references compras(fk_compra) on delete cascade,
-    fk_jogo integer not null references jogos(fk_jogo),
+    fk_compra integer not null references compras(id_compra) on delete cascade,
+    fk_jogo integer not null references jogos(id_jogo) on delete cascade,
     preco_unitario decimal(10,2) not null,
     desconto_aplicado decimal(5,2) default 0,
     preco_pago decimal(10,2) generated always as (preco_unitario * (1 - desconto_aplicado/100)) stored,

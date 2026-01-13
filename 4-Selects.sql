@@ -3,22 +3,22 @@ select titulo from jogos;
 select nome, descricao from categorias;
 select nome_usuario as usuario, j.titulo as jogo, a.nota, a.comentario, a.data_avaliacao
 from avaliacoes a
-join jogos j on a.id_jogo = j.id_jogo
-join usuarios u on a.id_usuario = u.id_usuario;
+join jogos j on a.fk_jogo = j.id_jogo
+join usuarios u on a.fk_usuario = u.id_usuario;
 
 select titulo from jogos
 where id_jogo in (
     select id_jogo from jogo_categorias
-    where id_categoria = (
+    where fk_categoria = (
         select id_categoria from categorias
-        where nome = 'Ação'
+        where nome = 'RPG'
     )
 );
 
 select titulo from jogos
-join jogo_categorias jc on jogos.id_jogo = jc.id_jogo;
+join jogo_categorias jc on jogos.id_jogo = jc.fk_jogo;
 
-select*from jogos; 
+select * from jogos; 
 
 select u.nome_usuario,
 j.titulo,
@@ -31,21 +31,24 @@ join jogos j on c.fk_jogo = j.id_jogo;
 
 SELECT u.nome_usuario, j.titulo, b.horas_jogadas, b.ultimo_acesso
 FROM biblioteca b
-JOIN usuarios u ON b.id_usuario = u.id_usuario
-JOIN jogos j ON b.id_jogo = j.id_jogo;
+JOIN usuarios u ON b.fk_usuario = u.id_usuario
+JOIN jogos j ON b.fk_jogo = j.id_jogo;
 
-SELECT c.id_compra, u.nome_usuario, j.titulo, i.preco_unitario, i.preco_pago FROM compras c JOIN usuarios u ON c.fk_usuario = u.id_usuario JOIN itens_compra i ON c.id_compra = i.id_compra JOIN jogos j ON i.id_jogo = j.id_jogo;
+SELECT c.id_compra, u.nome_usuario, j.titulo, i.preco_unitario, i.preco_pago 
+FROM compras c 
+JOIN usuarios u ON c.fk_usuario = u.id_usuario JOIN itens_compra i ON c.id_compra = i.fk_compra 
+JOIN jogos j ON i.fk_jogo = j.id_jogo;
 
 
 SELECT j.titulo, cat.nome AS categoria
 FROM jogo_categorias jc
-JOIN jogos j ON jc.id_jogo = j.id_jogo
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria;
+JOIN jogos j ON jc.fk_jogo = j.id_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria;
 
 SELECT u.nome_usuario, j.titulo, a.nota, a.comentario
 FROM avaliacoes a
-JOIN usuarios u ON a.id_usuario = u.id_usuario
-JOIN jogos j ON a.id_jogo = j.id_jogo;
+JOIN usuarios u ON a.fk_usuario = u.id_usuario
+JOIN jogos j ON a.fk_jogo = j.id_jogo;
 
 SELECT u1.nome_usuario AS usuario, u2.nome_usuario AS amigo, am.status
 FROM amizades am
@@ -60,8 +63,8 @@ JOIN jogos j ON d.id_jogo_base = j.id_jogo;
 
 SELECT p.nome AS pacote, j.titulo AS jogo, p.preco_total, p.desconto_pacote
 FROM pacote_itens pi
-JOIN pacotes p ON pi.id_pacote = p.id_pacote
-JOIN jogos j ON pi.id_jogo = j.id_jogo;
+JOIN pacotes p ON pi.fk_pacote = p.id_pacote
+JOIN jogos j ON pi.fk_jogo = j.id_jogo;
 
 SELECT u.nome_usuario, j.titulo, ld.data_adicao
 FROM lista_desejos ld
@@ -76,7 +79,7 @@ JOIN usuarios d ON m.id_destinatario = d.id_usuario;
 
 SELECT j.titulo, round(AVG(a.nota),2) AS media_notas, COUNT(a.id_avaliacao) AS total_avaliacoes
 FROM jogos j
-JOIN avaliacoes a ON j.id_jogo = a.id_jogo
+JOIN avaliacoes a ON j.id_jogo = a.fk_jogo
 GROUP BY j.titulo;
 
 SELECT u.nome_usuario, c.id_compra, c.data_compra, c.total, c.status
@@ -86,13 +89,13 @@ JOIN usuarios u ON c.fk_usuario = u.id_usuario;
 SELECT j.titulo AS jogo_base, d.titulo AS dlc, cat.nome AS categoria
 FROM dlcs d
 JOIN jogos j ON d.id_jogo_base = j.id_jogo
-JOIN jogo_categorias jc ON j.id_jogo = jc.id_jogo
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria;
+JOIN jogo_categorias jc ON j.id_jogo = jc.fk_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria;
 
 SELECT p.nome AS pacote, j.titulo AS jogo, p.preco_total, p.desconto_pacote
 FROM pacotes p
-JOIN pacote_itens pi ON p.id_pacote = pi.id_pacote
-JOIN jogos j ON pi.id_jogo = j.id_jogo;
+JOIN pacote_itens pi ON p.id_pacote = pi.fk_pacote
+JOIN jogos j ON pi.fk_jogo = j.id_jogo;
 
 
 SELECT u1.nome_usuario AS usuario, u2.nome_usuario AS amigo, am.status, m.conteudo
@@ -104,7 +107,7 @@ LEFT JOIN mensagens m ON (m.id_remetente = u1.id_usuario AND m.id_destinatario =
 
 SELECT j.titulo, SUM(i.preco_pago) AS receita_total
 FROM itens_compra i
-JOIN jogos j ON i.id_jogo = j.id_jogo
+JOIN jogos j ON i.fk_jogo = j.id_jogo
 GROUP BY j.titulo
 ORDER BY receita_total DESC;
 SELECT u.nome_usuario, u.saldo_carteira, j.titulo, j.preco_final
@@ -115,7 +118,7 @@ ORDER BY u.saldo_carteira DESC;
 
 SELECT u.nome_usuario, SUM(b.horas_jogadas) AS total_horas
 FROM biblioteca b
-JOIN usuarios u ON b.id_usuario = u.id_usuario
+JOIN usuarios u ON b.fk_usuario = u.id_usuario
 GROUP BY u.nome_usuario
 ORDER BY total_horas DESC
 LIMIT 5;
@@ -128,9 +131,9 @@ ORDER BY total_desejos DESC;
 
 SELECT cat.nome AS categoria, SUM(ic.preco_pago) AS receita_total
 FROM itens_compra ic
-JOIN jogos j ON ic.id_jogo = j.id_jogo
-JOIN jogo_categorias jc ON j.id_jogo = jc.id_jogo
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria
+JOIN jogos j ON ic.fk_jogo = j.id_jogo
+JOIN jogo_categorias jc ON j.id_jogo = jc.fk_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria
 GROUP BY cat.nome
 ORDER BY receita_total DESC;
 
@@ -140,9 +143,9 @@ JOIN usuarios u1 ON am.id_usuario1 = u1.id_usuario
 JOIN usuarios u2 ON am.id_usuario2 = u2.id_usuario
 WHERE am.status = 'aceito';
 
-SELECT j.titulo, AVG(a.nota) AS media
+SELECT j.titulo, round(AVG(a.nota),2) AS media
 FROM avaliacoes a
-JOIN jogos j ON a.id_jogo = j.id_jogo
+JOIN jogos j ON a.fk_jogo = j.id_jogo
 GROUP BY j.titulo
 HAVING AVG(a.nota) >= 4
 ORDER BY media DESC;
@@ -156,19 +159,19 @@ ORDER BY gasto_total DESC;
 SELECT j.titulo AS jogo_base, d.titulo AS dlc, AVG(a.nota) AS media_avaliacao
 FROM dlcs d
 JOIN jogos j ON d.id_jogo_base = j.id_jogo
-LEFT JOIN avaliacoes a ON j.id_jogo = a.id_jogo
+LEFT JOIN avaliacoes a ON j.id_jogo = a.fk_jogo
 GROUP BY j.titulo, d.titulo;
 
 SELECT u.nome_usuario, j.titulo, i.preco_pago, c.data_compra
 FROM compras c
 JOIN usuarios u ON c.fk_usuario = u.id_usuario
-JOIN itens_compra i ON c.id_compra = i.id_compra
-JOIN jogos j ON i.id_jogo = j.id_jogo
+JOIN itens_compra i ON c.id_compra = i.fk_compra
+JOIN jogos j ON i.fk_jogo = j.id_jogo
 ORDER BY c.data_compra DESC;
 
-SELECT j.titulo, COUNT(b.id_usuario) AS total_usuarios
+SELECT j.titulo, COUNT(b.fk_usuario) AS total_usuarios
 FROM biblioteca b
-JOIN jogos j ON b.id_jogo = j.id_jogo
+JOIN jogos j ON b.fk_jogo = j.id_jogo
 GROUP BY j.titulo
 ORDER BY total_usuarios DESC;
 
@@ -186,9 +189,9 @@ ORDER BY desconto_percentual DESC;
 
 SELECT cat.nome AS categoria, COUNT(a.id_avaliacao) AS total_avaliacoes
 FROM avaliacoes a
-JOIN jogos j ON a.id_jogo = j.id_jogo
-JOIN jogo_categorias jc ON j.id_jogo = jc.id_jogo
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria
+JOIN jogos j ON a.fk_jogo = j.id_jogo
+JOIN jogo_categorias jc ON j.id_jogo = jc.fk_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria
 GROUP BY cat.nome
 ORDER BY total_avaliacoes DESC;
 
@@ -201,8 +204,8 @@ ORDER BY gasto_total DESC;
 SELECT j.titulo AS jogo_base, d.titulo AS dlc, p.nome AS pacote
 FROM jogos j
 LEFT JOIN dlcs d ON j.id_jogo = d.id_jogo_base
-LEFT JOIN pacote_itens pi ON j.id_jogo = pi.id_jogo
-LEFT JOIN pacotes p ON pi.id_pacote = p.id_pacote;
+LEFT JOIN pacote_itens pi ON j.id_jogo = pi.fk_jogo
+LEFT JOIN pacotes p ON pi.fk_pacote = p.id_pacote;
 
 SELECT u.nome_usuario AS remetente, m.conteudo, m.data_envio
 FROM mensagens m
@@ -217,40 +220,40 @@ ORDER BY j.preco_final DESC;
 
 SELECT u.nome_usuario, j.titulo, i.preco_unitario, i.desconto_aplicado, i.preco_pago
 FROM itens_compra i
-JOIN compras c ON i.id_compra = c.id_compra
+JOIN compras c ON i.fk_compra = c.id_compra
 JOIN usuarios u ON c.fk_usuario = u.id_usuario
-JOIN jogos j ON i.id_jogo = j.id_jogo
+JOIN jogos j ON i.fk_jogo = j.id_jogo
 WHERE i.desconto_aplicado > 0;
 
 SELECT j.titulo, COUNT(a.id_avaliacao) AS total_avaliacoes
 FROM avaliacoes a
-JOIN jogos j ON a.id_jogo = j.id_jogo
+JOIN jogos j ON a.fk_jogo = j.id_jogo
 GROUP BY j.titulo
 ORDER BY total_avaliacoes DESC;
 
 SELECT cat.nome AS categoria, COUNT(j.id_jogo) AS total_jogos
 FROM jogo_categorias jc
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria
-JOIN jogos j ON jc.id_jogo = j.id_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria
+JOIN jogos j ON jc.fk_jogo = j.id_jogo
 WHERE j.status = 'ativo'
 GROUP BY cat.nome
 ORDER BY total_jogos DESC;
 
 SELECT u.nome_usuario, j.titulo, a.nota, a.comentario
 FROM avaliacoes a
-JOIN usuarios u ON a.id_usuario = u.id_usuario
-JOIN jogos j ON a.id_jogo = j.id_jogo;
+JOIN usuarios u ON a.fk_usuario = u.id_usuario
+JOIN jogos j ON a.fk_jogo = j.id_jogo;
 
 SELECT u.nome_usuario, SUM(d.preco) AS gasto_dlcs
 FROM biblioteca b
-JOIN usuarios u ON b.id_usuario = u.id_usuario
-JOIN dlcs d ON b.id_jogo = d.id_jogo_base
+JOIN usuarios u ON b.fk_usuario = u.id_usuario
+JOIN dlcs d ON b.fk_jogo = d.id_jogo_base
 GROUP BY u.nome_usuario
 ORDER BY gasto_dlcs DESC;
 
-SELECT p.nome AS pacote, COUNT(pi.id_jogo) AS total_jogos
+SELECT p.nome AS pacote, COUNT(pi.fk_jogo) AS total_jogos
 FROM pacotes p
-JOIN pacote_itens pi ON p.id_pacote = pi.id_pacote
+JOIN pacote_itens pi ON p.id_pacote = pi.fk_pacote
 GROUP BY p.nome
 ORDER BY total_jogos DESC;
 
@@ -262,7 +265,7 @@ ORDER BY mensagens_enviadas DESC;
 
 SELECT j.titulo, SUM(b.horas_jogadas) AS horas_totais
 FROM biblioteca b
-JOIN jogos j ON b.id_jogo = j.id_jogo
+JOIN jogos j ON b.fk_jogo = j.id_jogo
 GROUP BY j.titulo
 ORDER BY horas_totais DESC;
 
@@ -277,10 +280,10 @@ SELECT
     i.preco_pago
 FROM compras c
 JOIN usuarios u ON c.fk_usuario = u.id_usuario
-JOIN itens_compra i ON c.id_compra = i.id_compra
-JOIN jogos j ON i.id_jogo = j.id_jogo
-LEFT JOIN jogo_categorias jc ON j.id_jogo = jc.id_jogo
-LEFT JOIN categorias cat ON jc.id_categoria = cat.id_categoria
+JOIN itens_compra i ON c.id_compra = i.fk_compra
+JOIN jogos j ON i.fk_jogo = j.id_jogo
+LEFT JOIN jogo_categorias jc ON j.id_jogo = jc.fk_jogo
+LEFT JOIN categorias cat ON jc.fk_categoria = cat.id_categoria
 ORDER BY c.data_compra DESC;
 
 SELECT 
@@ -288,8 +291,8 @@ SELECT
     j.titulo,
     SUM(b.horas_jogadas) AS horas_totais
 FROM biblioteca b
-JOIN usuarios u ON b.id_usuario = u.id_usuario
-JOIN jogos j ON b.id_jogo = j.id_jogo
+JOIN usuarios u ON b.fk_usuario = u.id_usuario
+JOIN jogos j ON b.fk_jogo = j.id_jogo
 GROUP BY u.pais, j.titulo
 ORDER BY horas_totais DESC;
 
@@ -299,10 +302,10 @@ SELECT
     COUNT(DISTINCT j.id_jogo) AS jogos_vendidos,
     COUNT(DISTINCT c.fk_usuario) AS usuarios_compradores
 FROM itens_compra ic
-JOIN jogos j ON ic.id_jogo = j.id_jogo
-JOIN jogo_categorias jc ON j.id_jogo = jc.id_jogo
-JOIN categorias cat ON jc.id_categoria = cat.id_categoria
-JOIN compras c ON ic.id_compra = c.id_compra
+JOIN jogos j ON ic.fk_jogo = j.id_jogo
+JOIN jogo_categorias jc ON j.id_jogo = jc.fk_jogo
+JOIN categorias cat ON jc.fk_categoria = cat.id_categoria
+JOIN compras c ON ic.fk_compra = c.id_compra
 GROUP BY cat.nome
 ORDER BY receita_total DESC;
 
@@ -320,15 +323,27 @@ ORDER BY total_compras DESC, total_amigos DESC, mensagens_enviadas DESC;
 
 SELECT 
     j.titulo,
-    COUNT(DISTINCT ic.id_compra) AS total_vendas,
-    AVG(a.nota) AS media_avaliacao,
+    COUNT(DISTINCT ic.fk_compra) AS total_vendas,
+    round(AVG(a.nota),2) AS media_avaliacao,
     SUM(b.horas_jogadas) AS horas_totais
 FROM jogos j
-LEFT JOIN itens_compra ic ON j.id_jogo = ic.id_jogo
-LEFT JOIN avaliacoes a ON j.id_jogo = a.id_jogo
-LEFT JOIN biblioteca b ON j.id_jogo = b.id_jogo
+LEFT JOIN itens_compra ic ON j.id_jogo = ic.fk_jogo
+LEFT JOIN avaliacoes a ON j.id_jogo = a.fk_jogo
+LEFT JOIN biblioteca b ON j.id_jogo = b.fk_jogo
 GROUP BY j.titulo
 ORDER BY total_vendas DESC, media_avaliacao DESC, horas_totais DESC;
 
 select titulo, avaliacao_media from jogos
-where avaliacao_media >= 4.5
+where avaliacao_media >= 4.5;
+
+SELECT 
+    j.titulo AS nome_jogo,
+    c.nome AS nome_categoria
+FROM 
+    jogo_categorias jc
+JOIN 
+    jogos j ON jc.fk_jogo = j.id_jogo
+JOIN 
+    categorias c ON jc.fk_categoria = c.id_categoria
+ORDER BY 
+    j.titulo, c.nome;
