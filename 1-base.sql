@@ -133,7 +133,7 @@ create table amizades (
     id_usuario2 integer not null references usuarios(id_usuario) on delete cascade,
     data_amizade timestamp default current_timestamp,
     status status_amizade default 'pendente',
-    check (id_usuario1 < id_usuario2),
+    check (id_usuario1 <> id_usuario2),
     primary key (id_usuario1, id_usuario2)
 );
 
