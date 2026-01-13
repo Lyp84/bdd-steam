@@ -10,9 +10,8 @@ create table usuarios (
     pais varchar(50),
     data_criacao timestamp default current_timestamp,
     avatar_url text,
-    steam_level integer default 1,
+    steam_level integer default 1 check (steam_level >= 1),
     saldo_carteira decimal(10,2) default 0.00,
-    check (steam_level >= 1)
 );
 
 --jogos
